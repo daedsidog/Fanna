@@ -25,6 +25,7 @@
 *.userprefs
 
 # Build results
+[dD]ebug/*.exe
 [Dd]ebugPublic/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
