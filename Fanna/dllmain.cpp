@@ -11,5 +11,10 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 	return TRUE;
 }
 
-__declspec(dllexport) void reset_fanna(pair_info pi) {
+pair_info::pair_info(PI){
+	this->pair = pair;
+	this->interval = interval;
+	this->volume = volume;
+	this->opening_price = opening_price;
+	this->closing_price = closing_price;
 }
