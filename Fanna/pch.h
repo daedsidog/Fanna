@@ -1,13 +1,30 @@
-// pch.h: This is a precompiled header file.
-// Files listed below are compiled only once, improving build performance for future builds.
-// This also affects IntelliSense performance, including code completion and many code browsing features.
-// However, files listed here are ALL re-compiled if any one of them is updated between builds.
-// Do not add files here that you will be updating frequently as this negates the performance advantage.
-
 #ifndef PCH_H
 #define PCH_H
 
-// add headers that you want to pre-compile here
 #include "framework.h"
 
-#endif //PCH_H
+#include <string>
+
+__declspec(dllexport) struct pair_info {
+	double
+		*volume,
+		*opening_price,
+		*closing_price;
+	std::string
+		pair,
+		interval;
+	pair_info(std::string pair, std::string interval, double *volume, double *opening_price, double *closing_price) {
+		this->pair = pair;
+		this->interval = interval;
+		this->volume = volume;
+		this->opening_price = opening_price;
+		this->closing_price = closing_price;
+	}
+};
+
+__declspec(dllexport) void reset_fanna(pair_info pi);
+__declspec(dllexport) void build_fanna_database(pair_info pi, int samples);
+__declspec(dllexport) void train_fanna(pair_info pi);
+__declspec(dllexport) float pulse_fanna(pair_info pi);
+
+#endif
