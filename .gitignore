@@ -26,6 +26,7 @@
 
 # Build results
 [dD]ebug/*.exe
+x64/[dD]ebug/*.exe
 [Dd]ebugPublic/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
