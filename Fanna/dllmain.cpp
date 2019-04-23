@@ -23,15 +23,24 @@ pair_info::pair_info(PI){
 	this->min_price = min_price;
 }
 
-extern "C" void __declspec(dllexport) reset_fanna(PI) {
-
+extern "C" int __declspec(dllexport) reset_fanna(PI) {
+	return 1;
 }
-extern "C" void __declspec(dllexport) train_fanna(PI) {
-
+extern "C" int __declspec(dllexport) train_fanna(PI) {
+	return 1;
 }
-extern "C" void __declspec(dllexport) build_fanna_database(PI, int samples) {
-
+extern "C" int __declspec(dllexport) build_fanna_database(PI, int samples) {
+	return 1;
 }
 extern "C" float __declspec(dllexport) pulse_fanna(PI) {
-	return 0.0f;
+	float sentiment = 0.0f;
+	return sentiment;
 }
+#ifdef _DEBUG
+extern "C" int __declspec(dllexport) test(void) {
+	AllocConsole();
+	freopen_s((FILE * *)stdout, "CONOUT$", "w", stdout);
+	FreeConsole();
+	return 1;
+}
+#endif
