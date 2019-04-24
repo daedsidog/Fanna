@@ -17,6 +17,7 @@ struct pair_info {
 	std::string
 		pair,
 		interval;
+	pair_info(void);
 	pair_info(PI);
 };
 
