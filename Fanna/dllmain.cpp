@@ -2,7 +2,10 @@
 
 #include <iostream>
 
-#include "net.cpp"
+#include "net.hpp"
+
+#define free_console() FreeConsole()
+#define init_console() AllocConsole(); freopen_s((FILE * *)stdout, "CONOUT$", "w", stdout); pair_info pi = pair_info(PIARGS);
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
 	switch (ul_reason_for_call) {
@@ -34,23 +37,35 @@ pair_info::pair_info(PI){
 }
 
 extern "C" int __declspec(dllexport) reset_fanna(PI) {
+	init_console();
+	net ann(pi);
+	ann.reset();
+	free_console();
 	return 1;
 }
 extern "C" int __declspec(dllexport) train_fanna(PI) {
+	init_console();
+	net ann(pi);
+	ann.train();
+	free_console();
 	return 1;
 }
 extern "C" int __declspec(dllexport) build_fanna_database(PI, int samples) {
+	init_console();
+	net ann(pi);
+	ann.rebuild_database(samples);
+	free_console();
 	return 1;
 }
 extern "C" double __declspec(dllexport) pulse_fanna(PI) {
-	double sentiment = 0.0f;
+	init_console();
+	net ann(pi);
+	double sentiment = ann.pulse();
+	free_console();
 	return sentiment;
 }
 #ifdef _DEBUG
 extern "C" int __declspec(dllexport) test(void) {
-	AllocConsole();
-	freopen_s((FILE * *)stdout, "CONOUT$", "w", stdout);
-	FreeConsole();
 	return 1;
 }
 #endif

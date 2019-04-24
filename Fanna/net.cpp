@@ -1,3 +1,5 @@
+#pragma once
+
 #include "pch.h"
 
 #include <filesystem>
@@ -10,7 +12,7 @@
 #include "config.hpp"
 
 
-net::net(pair_info *pi) {
+net::net(pair_info pi) {
 	cascade_training = stoi(config::parse("cascade_training")) == 1 ? true : false;
 	shuffle_data = stoi(config::parse("shuffle_data")) == 1 ? true : false;
 
@@ -32,7 +34,7 @@ net::net(pair_info *pi) {
 		training_algorithm = FANN::TRAIN_QUICKPROP;
 	else training_algorithm = FANN::TRAIN_RPROP;
 	std::stringstream namestream;
-	namestream << pi->pair << pi->interval;
+	namestream << pi.pair << pi.interval;
 	std::stringstream netss;
 	netss << netname << "\\" << netname << ".net";
 	if (std::filesystem::exists(netss.str()))
@@ -69,7 +71,7 @@ void net::save(void) {
 	std::cout << "Saving network..." << std::endl;
 	ann.save((std::stringstream() << netname << "\\" << netname << ".net").str());
 }
-void net::rebuild_database(void) {
+void net::rebuild_database(int samples) {
 }
 void net::train(void){
 	if (!std::filesystem::exists((std::stringstream() << netname << "\\" << netname << ".dat").str()))

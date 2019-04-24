@@ -6,7 +6,6 @@
 
 #define PI std::string pair, std::string interval, double *opening_price, double *closing_price, double *max_price, double *min_price, double *volume
 
-
 typedef int(__cdecl* INTPROC)(PI);
 typedef int(__cdecl* INTPROCSEC)(PI, int samples);
 typedef double(__cdecl* DOUBLEPROC)(PI);

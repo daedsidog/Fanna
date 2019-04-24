@@ -6,6 +6,7 @@
 #include <string>
 
 #define PI std::string pair, std::string interval, double *opening_price, double *closing_price, double *max_price, double *min_price, double *volume
+#define PIARGS pair, interval, opening_price, closing_price, max_price, min_price, volume
 
 struct pair_info {
 	double
