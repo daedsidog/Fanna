@@ -26,11 +26,11 @@ class net {
 
 	void create(void);
 	void load(void);
+	void save(void);
 public:
 	net(pair_info pi);
 	void reset(void);
 	void train(void);
 	void rebuild_database(int samples);
-	void save(void);
 	double pulse(void);
 };

@@ -66,6 +66,7 @@ void net::reset(void) {
 	std::filesystem::remove((std::stringstream() << netname << "\\" << netname << ".net").str());
 	ann.destroy();
 	create();
+	save();
 }
 void net::save(void) {
 	std::cout << "Saving network..." << std::endl;
@@ -85,6 +86,7 @@ void net::train(void){
 		ann.train_on_data(data, training_epochs, report_interval, desired_error);
 	else ann.cascadetrain_on_data(data, INT_MAX, 1, desired_error);
 	data.destroy_train();
+	save();
 }
 double net::pulse(void){
 	return 0.0;
