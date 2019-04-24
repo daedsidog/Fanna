@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "net.cpp"
+
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
 	switch (ul_reason_for_call) {
 	case DLL_PROCESS_ATTACH:
@@ -12,7 +14,15 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 	}
 	return TRUE;
 }
-pair_info::pair_info(void){}
+pair_info::pair_info(void){
+	this->pair = "";
+	this->interval = "";
+	this->volume = NULL;
+	this->opening_price = NULL;
+	this->closing_price = NULL;
+	this->max_price = NULL;
+	this->min_price = NULL;
+}
 pair_info::pair_info(PI){
 	this->pair = pair;
 	this->interval = interval;
