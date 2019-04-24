@@ -3,27 +3,27 @@
 #include <Windows.h>
 #include <libloaderapi.h>
 
-#define PI std::string pair, std::string interval, float *opening_price, float *closing_price, float *max_price, float *min_price, float *volume
+#define PI std::string pair, std::string interval, double *opening_price, double *closing_price, double *max_price, double *min_price, double *volume
 
 
 typedef int(__cdecl* INTPROC)(PI);
 typedef int(__cdecl* INTPROCSEC)(PI, int samples);
-typedef float(__cdecl* FLOATPROC)(PI);
+typedef double(__cdecl* DOUBLEPROC)(PI);
 
 int main(void) {
 	HINSTANCE lib = LoadLibrary("Fanna.dll");
 	INTPROC reset_fanna = (INTPROC)GetProcAddress(lib, "reset_fanna");
 	INTPROC train_fanna = (INTPROC)GetProcAddress(lib, "train_fanna");
 	INTPROCSEC build_fanna_database = (INTPROCSEC)GetProcAddress(lib, "build_fanna_database");
-	FLOATPROC pulse_fanna = (FLOATPROC)GetProcAddress(lib, "pulse_fanna");
+	DOUBLEPROC pulse_fanna = (DOUBLEPROC)GetProcAddress(lib, "pulse_fanna");
 
 	//	Test declarations
-	float
-		* opening_price = new float[1],
-		* closing_price = new float[1],
-		* max_price = new float[1],
-		* min_price = new float[1],
-		* volume = new float[1];
+	double
+		* opening_price = new double[1],
+		* closing_price = new double[1],
+		* max_price = new double[1],
+		* min_price = new double[1],
+		* volume = new double[1];
 	std::string
 		pair = "EURUSD",
 		interval = "4H";

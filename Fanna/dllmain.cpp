@@ -32,8 +32,8 @@ extern "C" int __declspec(dllexport) train_fanna(PI) {
 extern "C" int __declspec(dllexport) build_fanna_database(PI, int samples) {
 	return 1;
 }
-extern "C" float __declspec(dllexport) pulse_fanna(PI) {
-	float sentiment = 0.0f;
+extern "C" double __declspec(dllexport) pulse_fanna(PI) {
+	double sentiment = 0.0f;
 	return sentiment;
 }
 #ifdef _DEBUG

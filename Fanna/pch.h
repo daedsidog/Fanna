@@ -5,10 +5,10 @@
 
 #include <string>
 
-#define PI std::string pair, std::string interval, float *opening_price, float *closing_price, float *max_price, float *min_price, float *volume
+#define PI std::string pair, std::string interval, double *opening_price, double *closing_price, double *max_price, double *min_price, double *volume
 
 struct pair_info {
-	float
+	double
 		*opening_price,
 		*closing_price,
 		*max_price,
@@ -23,6 +23,6 @@ struct pair_info {
 extern "C" int __declspec(dllexport) reset_fanna(PI);
 extern "C" int __declspec(dllexport) train_fanna(PI);
 extern "C" int __declspec(dllexport) build_fanna_database(PI, int samples);
-extern "C" float __declspec(dllexport) pulse_fanna(PI);
+extern "C" double __declspec(dllexport) pulse_fanna(PI);
 
 #endif
