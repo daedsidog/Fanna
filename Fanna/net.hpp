@@ -15,7 +15,7 @@ class net {
 		training_epochs,
 		hidden_layers,
 		report_interval;
-	double 
+	float 
 		desired_error,
 		learning_momentum,
 		learning_rate;
@@ -30,8 +30,7 @@ public:
 	net(pair_info *pi);
 	void reset(void);
 	void train(void);
-	void train(void);
 	void rebuild_database(void);
-	void test(void);
 	void save(void);
+	double pulse(void);
 };
