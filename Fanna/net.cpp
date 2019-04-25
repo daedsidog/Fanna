@@ -80,15 +80,54 @@ void net::rebuild_database(int samples) {
 		std::ofstream database(dbname.str());
 		database << samples << " " << hindsight_level * 5 << " 1" << std::endl;
 		for (int i = 0; i < samples; ++i) {
+			std::cout << "\rRebuilding database (" << i << "/" << samples << ")...";
+			double min = 0.0, max = 0.0;
 			for (int j = 0; j < hindsight_level; ++j) {
-				database << pi.opening_price[j + i + 2] << " ";
-				database << pi.closing_price[j + i + 2] << " ";
-				database << pi.max_price[j + i + 2] << " ";
-				database << pi.min_price[j + i + 2] << " ";
-				database << pi.volume[j + i + 2] << " ";
+				int idx = j + i + 2 + foresight_level;
+				min = min == 0.0 ? pi.min_price[idx] : pi.min_price[idx] < min ? pi.min_price[idx] : min;
+				max = min == 0.0 ? pi.max_price[idx] : pi.max_price[idx] > max ? pi.max_price[idx] : max;
+				database << pi.opening_price[idx] << " ";
+				database << pi.closing_price[idx] << " ";
+				database << pi.max_price[idx] << " ";
+				database << pi.min_price[idx] << " ";
+				database << pi.volume[idx] << " ";
 			}
+			database << std::endl;
+			bool price_met = false;
+			double
+				avg = (max - min) / double(hindsight_level),
+				upper_bound = pi.closing_price[i + 1 + foresight_level] + avg,
+				lower_bound = pi.closing_price[i + 1 + foresight_level] - avg;
+			for (int j = foresight_level; j > 0, !price_met; --j) {
+				int idx = j + i;
+				if (pi.max_price[idx] >= upper_bound) {
+					if (pi.min_price[idx] > lower_bound) {
+						database << "1.0" << std::endl;
+						price_met = true;
+					}
+					else {
+						database << "0.5" << std::endl;
+						price_met = true;
+					}
+				}
+				else {
+					if (pi.min_price[idx] <= lower_bound) {
+						if (pi.max_price[idx] >= upper_bound) {
+							database << "0.0" << std::endl;
+							price_met = true;
+						}
+						else {
+							database << "0.5" << std::endl;
+							price_met = true;
+						}
+					}
+				}
+			}
+			if (!price_met)
+				database << "0.5" << std::endl;
 		}
-		//	TODO: Create output
+		database.close();
+		std::cout << std::endl;
 	}
 	else std::cout << "ERROR: Amount of samples too large for the available pair data." << std::endl;
 }
