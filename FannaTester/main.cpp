@@ -4,7 +4,7 @@
 #include <libloaderapi.h>
 #include <vector>
 
-#define PI std::string pair, std::string interval, double *opening_price, double *closing_price, double *max_price, double *min_price, double *volume
+#define PI int length, std::string pair, std::string interval, double *opening_price, double *closing_price, double *max_price, double *min_price, double *volume
 
 typedef int(__cdecl* INTPROC)(PI);
 typedef int(__cdecl* INTPROCSEC)(PI, int samples);
@@ -18,6 +18,7 @@ int main(void) {
 	DOUBLEPROC pulse_fanna = (DOUBLEPROC)GetProcAddress(lib, "pulse_fanna");
 
 	//	Test declarations
+	int length = 100;
 	std::vector<double> vec;
 	for (int i = 0; i < 100; ++i)
 		vec.push_back(i);
@@ -34,7 +35,7 @@ int main(void) {
 	opening_price[0] = 123.0f;
 
 	FreeConsole();
-	build_fanna_database(pair, interval, opening_price, closing_price, max_price, min_price, volume, 30);
+	build_fanna_database(length, pair, interval, opening_price, closing_price, max_price, min_price, volume, 30);
 
 	system("pause");
 }

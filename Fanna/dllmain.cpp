@@ -18,6 +18,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 	return TRUE;
 }
 pair_info::pair_info(void){
+	this->length = 0;
 	this->pair = "";
 	this->interval = "";
 	this->volume = NULL;
@@ -27,6 +28,7 @@ pair_info::pair_info(void){
 	this->min_price = NULL;
 }
 pair_info::pair_info(PI){
+	this->length = length;
 	this->pair = pair;
 	this->interval = interval;
 	this->volume = volume;
