@@ -21,7 +21,7 @@ int main(void) {
 	int length = 100;
 	std::vector<double> vec;
 	for (int i = 0; i < 100; ++i)
-		vec.push_back(i);
+		vec.push_back(100);
 	double
 		* opening_price = vec.data(),
 		* closing_price = vec.data(),

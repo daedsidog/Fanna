@@ -85,24 +85,23 @@ void net::rebuild_database(int samples) {
 		database << samples << " " << hindsight_level * 5 << " 1" << std::endl;
 		for (int i = 0; i < samples; ++i) {
 			std::cout << "\rRebuilding database (" << i + 1 << "/" << samples << ")...";
-			double min = 0.0, max = 0.0;
+			double avg = 0.0;
 			for (int j = 0; j < hindsight_level; ++j) {
 				int idx = j + i + 2 + foresight_level;
-				min = min == 0.0 ? pi->min_price[idx] : pi->min_price[idx] < min ? pi->min_price[idx] : min;
-				max = min == 0.0 ? pi->max_price[idx] : pi->max_price[idx] > max ? pi->max_price[idx] : max;
+				avg += pi->max_price[idx] - pi->min_price[idx];
 				database << pi->opening_price[idx] << " ";
 				database << pi->closing_price[idx] << " ";
 				database << pi->max_price[idx] << " ";
 				database << pi->min_price[idx] << " ";
 				database << pi->volume[idx] << " ";
 			}
+			avg /= double(hindsight_level);
 			database << std::endl;
 			bool price_met = false;
 			double
-				avg = (max - min) / double(hindsight_level),
 				upper_bound = pi->closing_price[i + 1 + foresight_level] + avg,
 				lower_bound = pi->closing_price[i + 1 + foresight_level] - avg;
-			for (int j = foresight_level; j > 0, !price_met; --j) {
+			for (int j = foresight_level; j > 0 && !price_met; --j) {
 				int idx = j + i;
 				if (pi->max_price[idx] >= upper_bound) {
 					if (pi->min_price[idx] > lower_bound) {
@@ -116,14 +115,12 @@ void net::rebuild_database(int samples) {
 				}
 				else {
 					if (pi->min_price[idx] <= lower_bound) {
-						if (pi->max_price[idx] >= upper_bound) {
-							database << "0.0" << std::endl;
-							price_met = true;
-						}
-						else {
-							database << "0.5" << std::endl;
-							price_met = true;
-						}
+						database << "0.0" << std::endl;
+						price_met = true;
+					}
+					else {
+						database << "0.5" << std::endl;
+						price_met = true;
 					}
 				}
 			}
