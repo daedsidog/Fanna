@@ -56,6 +56,7 @@ extern "C" int __declspec(dllexport) build_fanna_database(PI, int samples) {
 	init_console();
 	net ann(&pi);
 	ann.rebuild_database(samples);
+	system("pause");
 	free_console();
 	return 1;
 }

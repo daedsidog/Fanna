@@ -4,7 +4,7 @@
 #include <libloaderapi.h>
 #include <vector>
 
-#define PI int length, std::string pair, std::string interval, double *opening_price, double *closing_price, double *max_price, double *min_price, double *volume
+#define PI  long length, const char *pair, const char *interval, double *opening_price, double *closing_price, double *max_price, double *min_price, double *volume
 
 typedef int(__cdecl* INTPROC)(PI);
 typedef int(__cdecl* INTPROCSEC)(PI, int samples);
@@ -28,9 +28,9 @@ int main(void) {
 		* max_price = vec.data(),
 		* min_price = vec.data(),
 		* volume = vec.data();
-	std::string
-		pair = "EURUSD",
-		interval = "4H";
+	const char
+		*pair = "EURUSD",
+		*interval = "60";
 
 	opening_price[0] = 123.0f;
 

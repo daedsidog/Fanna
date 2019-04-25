@@ -5,11 +5,11 @@
 
 #include <string>
 
-#define PI int length, std::string pair, std::string interval, double *opening_price, double *closing_price, double *max_price, double *min_price, double *volume
+#define PI  long length, char *pair, char *interval, double *opening_price, double *closing_price, double *max_price, double *min_price, double *volume
 #define PIARGS length, pair, interval, opening_price, closing_price, max_price, min_price, volume
 
 struct pair_info {
-	int length;
+	long length;
 	double
 		*opening_price,
 		*closing_price,
