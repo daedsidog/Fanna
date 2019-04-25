@@ -74,7 +74,7 @@ void net::save(void) {
 	ann.save((std::stringstream() << netname << "\\" << netname << ".net").str());
 }
 void net::rebuild_database(int samples) {
-	if ((sizeof(pi.max_price) / sizeof(double)) / samples >= 1) {
+	if (pi.length - hindsight_level + foresight_level + 2 >= samples)  {
 		std::stringstream dbname;
 		dbname << netname << "\\" << netname << ".dat";
 		std::ofstream database(dbname.str());
