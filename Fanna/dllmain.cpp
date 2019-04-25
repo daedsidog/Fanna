@@ -67,10 +67,9 @@ extern "C" int __declspec(dllexport) build_fanna_database(PI, int samples) {
 	return 1;
 }
 extern "C" double __declspec(dllexport) pulse_fanna(PI) {
-	init_console();
+	pair_info pi = pair_info(PIARGS);
 	net ann(&pi);
 	double sentiment = ann.pulse();
-	free_console();
 	return sentiment;
 }
 #ifdef _DEBUG
