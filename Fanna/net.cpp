@@ -17,6 +17,7 @@ net::net(pair_info pi) {
 	shuffle_data = stoi(config::parse("shuffle_data")) == 1 ? true : false;
 
 	hindsight_level = stoi(config::parse("hindsight_level"));
+	foresight_level = stoi(config::parse("foresight_level"));
 	training_epochs = stoi(config::parse("training_epochs"));
 	hidden_layers = stoi(config::parse("hidden_layers"));
 	report_interval = stoi(config::parse("report_interval"));
