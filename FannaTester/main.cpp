@@ -20,8 +20,10 @@ int main(void) {
 	//	Test declarations
 	int length = 100;
 	std::vector<double> vec;
-	for (int i = 0; i < 100; ++i)
-		vec.push_back(100);
+	for (int i = 0; i < 50; ++i)
+		vec.push_back(i);
+	for (int i = 0; i < 50; ++i)
+		vec.push_back(50 - i);
 	double
 		* opening_price = vec.data(),
 		* closing_price = vec.data(),
@@ -32,7 +34,5 @@ int main(void) {
 		*pair = "EURUSD",
 		*interval = "60";
 
-	opening_price[0] = 123.0f;
-
-	build_fanna_database(length, pair, interval, opening_price, closing_price, max_price, min_price, volume, 30);
+	build_fanna_database(length, pair, interval, opening_price, closing_price, max_price, min_price, volume, 52);
 }

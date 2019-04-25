@@ -13,27 +13,32 @@
 
 
 net::net(pair_info *pi) {
-	cascade_training = stoi(config::parse("cascade_training")) == 1 ? true : false;
-	shuffle_data = stoi(config::parse("shuffle_data")) == 1 ? true : false;
+	try {
+		cascade_training = stoi(config::parse("cascade_training")) == 1 ? true : false;
+		shuffle_data = stoi(config::parse("shuffle_data")) == 1 ? true : false;
 
-	hindsight_level = stoi(config::parse("hindsight_level"));
-	foresight_level = stoi(config::parse("foresight_level"));
-	training_epochs = stoi(config::parse("training_epochs"));
-	hidden_layers = stoi(config::parse("hidden_layers"));
-	report_interval = stoi(config::parse("report_interval"));
+		hindsight_level = stoi(config::parse("hindsight_level"));
+		foresight_level = stoi(config::parse("foresight_level"));
+		training_epochs = stoi(config::parse("training_epochs"));
+		hidden_layers = stoi(config::parse("hidden_layers"));
+		report_interval = stoi(config::parse("report_interval"));
 
-	learning_momentum = stof(config::parse("learning_momentum"));
-	learning_rate = stof(config::parse("learning_rate"));
-	desired_error = stof(config::parse("desired_error"));
+		learning_momentum = stof(config::parse("learning_momentum"));
+		learning_rate = stof(config::parse("learning_rate"));
+		desired_error = stof(config::parse("desired_error"));
 
-	std::string training_algstr = config::parse("training_algorithm");
-	if (training_algstr.find("INCREMENTAL") != training_algstr.npos)
-		training_algorithm = FANN::TRAIN_INCREMENTAL;
-	else if (training_algstr.find("BATCH") != training_algstr.npos)
-		training_algorithm = FANN::TRAIN_BATCH;
-	else if (training_algstr.find("QUICKPROP") != training_algstr.npos)
-		training_algorithm = FANN::TRAIN_QUICKPROP;
-	else training_algorithm = FANN::TRAIN_RPROP;
+		std::string training_algstr = config::parse("training_algorithm");
+		if (training_algstr.find("INCREMENTAL") != training_algstr.npos)
+			training_algorithm = FANN::TRAIN_INCREMENTAL;
+		else if (training_algstr.find("BATCH") != training_algstr.npos)
+			training_algorithm = FANN::TRAIN_BATCH;
+		else if (training_algstr.find("QUICKPROP") != training_algstr.npos)
+			training_algorithm = FANN::TRAIN_QUICKPROP;
+		else training_algorithm = FANN::TRAIN_RPROP;
+	}
+	catch (std::exception ex) {
+		std::cout << "ERROR: Could not read from config file. Is it located in the working directory?" << std::endl;
+	}
 	this->pi = pi;
 	std::stringstream namestream;
 	namestream << pi->pair << pi->interval;
@@ -52,8 +57,13 @@ void net::load(void) {
 }
 void net::create(void) {
 	std::cout << "Creating " << netname << "..." << std::endl;
-	if (!std::filesystem::exists(netname))
-		std::filesystem::create_directory(netname);
+	try {
+		if (!std::filesystem::exists(netname))
+			std::filesystem::create_directory(netname);
+	}
+	catch (std::exception ex) {
+		std::cout << "ERROR: Could not create ANN directory. Make sure you run the script as administrator." << std::endl;
+	}
 	if (!cascade_training) {
 		std::vector<unsigned int> layers;
 		layers.push_back(hindsight_level * 5);
@@ -78,7 +88,7 @@ void net::save(void) {
 	ann.save((std::stringstream() << netname << "\\" << netname << ".net").str());
 }
 void net::rebuild_database(int samples) {
-	if (pi->length - hindsight_level + foresight_level + 2 >= samples)  {
+	if (pi->length - (hindsight_level + foresight_level) >= samples)  {
 		std::stringstream dbname;
 		dbname << netname << "\\" << netname << ".dat";
 		std::ofstream database(dbname.str());
@@ -87,7 +97,7 @@ void net::rebuild_database(int samples) {
 			std::cout << "\rRebuilding database (" << i + 1 << "/" << samples << ")...";
 			double avg = 0.0;
 			for (int j = 0; j < hindsight_level; ++j) {
-				int idx = j + i + 2 + foresight_level;
+				int idx = j + i + 1 + foresight_level;
 				avg += pi->max_price[idx] - pi->min_price[idx];
 				database << pi->opening_price[idx] << " ";
 				database << pi->closing_price[idx] << " ";
