@@ -34,5 +34,5 @@ int main(void) {
 		*pair = "EURUSD",
 		*interval = "60";
 
-	build_fanna_database(hindsight, foresight, length, pair, interval, opening_price, closing_price, max_price, min_price, volume, 52);
+	std::cout << pulse_fanna(hindsight, foresight, length, pair, interval, opening_price, closing_price, max_price, min_price, volume);
 }
