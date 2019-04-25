@@ -73,6 +73,23 @@ void net::save(void) {
 	ann.save((std::stringstream() << netname << "\\" << netname << ".net").str());
 }
 void net::rebuild_database(int samples) {
+	if ((sizeof(pi.max_price) / sizeof(double)) / samples >= 1) {
+		std::stringstream dbname;
+		dbname << netname << "\\" << netname << ".dat";
+		std::ofstream database(dbname.str());
+		database << samples << " " << hindsight_level * 5 << " 1" << std::endl;
+		for (int i = 0; i < samples; ++i) {
+			for (int j = 0; j < hindsight_level; ++j) {
+				database << pi.opening_price[j + i + 2] << " ";
+				database << pi.closing_price[j + i + 2] << " ";
+				database << pi.max_price[j + i + 2] << " ";
+				database << pi.min_price[j + i + 2] << " ";
+				database << pi.volume[j + i + 2] << " ";
+			}
+		}
+		//	TODO: Create output
+	}
+	else std::cout << "ERROR: Amount of samples too large for the available pair data." << std::endl;
 }
 void net::train(void){
 	if (!std::filesystem::exists((std::stringstream() << netname << "\\" << netname << ".dat").str()))
@@ -89,5 +106,14 @@ void net::train(void){
 	save();
 }
 double net::pulse(void){
-	return 0.0;
+	std::vector<double> inputs;
+	for (int i = 0; i < hindsight_level; ++i) {
+		inputs.push_back(pi.opening_price[i]);
+		inputs.push_back(pi.closing_price[i]);
+		inputs.push_back(pi.max_price[i]);
+		inputs.push_back(pi.min_price[i]);
+		inputs.push_back(pi.volume[i]);
+	}
+	double *outputs = ann.run(inputs.data());
+	return outputs[0];
 }
