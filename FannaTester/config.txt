@@ -1,0 +1,12 @@
+[NEURAL NET]
+hindsight_level = 32
+foresight_level = 16
+learning_rate = 0.6			
+learning_momentum = 0.3			
+desired_error = 0.01
+training_epochs = 100		//	Does not apply when cascade training
+training_algorithm = RPROP	//	Algorithms: RPROP, BATCH, INCREMENTAL, QUICKPROP
+cascade_training = 1		//	Binary value. Only RPROP and QUICKPROP work when cascade training.
+hidden_layers = 2
+shuffle_data = 0		//	Binary value
+report_interval = 1

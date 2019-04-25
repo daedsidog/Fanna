@@ -12,7 +12,7 @@
 #include "config.hpp"
 
 
-net::net(pair_info pi) {
+net::net(pair_info *pi) {
 	cascade_training = stoi(config::parse("cascade_training")) == 1 ? true : false;
 	shuffle_data = stoi(config::parse("shuffle_data")) == 1 ? true : false;
 
@@ -34,8 +34,10 @@ net::net(pair_info pi) {
 	else if (training_algstr.find("QUICKPROP") != training_algstr.npos)
 		training_algorithm = FANN::TRAIN_QUICKPROP;
 	else training_algorithm = FANN::TRAIN_RPROP;
+	this->pi = pi;
 	std::stringstream namestream;
-	namestream << pi.pair << pi.interval;
+	namestream << pi->pair << pi->interval;
+	netname = namestream.str();
 	std::stringstream netss;
 	netss << netname << "\\" << netname << ".net";
 	if (std::filesystem::exists(netss.str()))
@@ -50,6 +52,8 @@ void net::load(void) {
 }
 void net::create(void) {
 	std::cout << "Creating " << netname << "..." << std::endl;
+	if (!std::filesystem::exists(netname))
+		std::filesystem::create_directory(netname);
 	if (!cascade_training) {
 		std::vector<unsigned int> layers;
 		layers.push_back(hindsight_level * 5);
@@ -74,34 +78,34 @@ void net::save(void) {
 	ann.save((std::stringstream() << netname << "\\" << netname << ".net").str());
 }
 void net::rebuild_database(int samples) {
-	if (pi.length - hindsight_level + foresight_level + 2 >= samples)  {
+	if (pi->length - hindsight_level + foresight_level + 2 >= samples)  {
 		std::stringstream dbname;
 		dbname << netname << "\\" << netname << ".dat";
 		std::ofstream database(dbname.str());
 		database << samples << " " << hindsight_level * 5 << " 1" << std::endl;
 		for (int i = 0; i < samples; ++i) {
-			std::cout << "\rRebuilding database (" << i << "/" << samples << ")...";
+			std::cout << "\rRebuilding database (" << i + 1 << "/" << samples << ")...";
 			double min = 0.0, max = 0.0;
 			for (int j = 0; j < hindsight_level; ++j) {
 				int idx = j + i + 2 + foresight_level;
-				min = min == 0.0 ? pi.min_price[idx] : pi.min_price[idx] < min ? pi.min_price[idx] : min;
-				max = min == 0.0 ? pi.max_price[idx] : pi.max_price[idx] > max ? pi.max_price[idx] : max;
-				database << pi.opening_price[idx] << " ";
-				database << pi.closing_price[idx] << " ";
-				database << pi.max_price[idx] << " ";
-				database << pi.min_price[idx] << " ";
-				database << pi.volume[idx] << " ";
+				min = min == 0.0 ? pi->min_price[idx] : pi->min_price[idx] < min ? pi->min_price[idx] : min;
+				max = min == 0.0 ? pi->max_price[idx] : pi->max_price[idx] > max ? pi->max_price[idx] : max;
+				database << pi->opening_price[idx] << " ";
+				database << pi->closing_price[idx] << " ";
+				database << pi->max_price[idx] << " ";
+				database << pi->min_price[idx] << " ";
+				database << pi->volume[idx] << " ";
 			}
 			database << std::endl;
 			bool price_met = false;
 			double
 				avg = (max - min) / double(hindsight_level),
-				upper_bound = pi.closing_price[i + 1 + foresight_level] + avg,
-				lower_bound = pi.closing_price[i + 1 + foresight_level] - avg;
+				upper_bound = pi->closing_price[i + 1 + foresight_level] + avg,
+				lower_bound = pi->closing_price[i + 1 + foresight_level] - avg;
 			for (int j = foresight_level; j > 0, !price_met; --j) {
 				int idx = j + i;
-				if (pi.max_price[idx] >= upper_bound) {
-					if (pi.min_price[idx] > lower_bound) {
+				if (pi->max_price[idx] >= upper_bound) {
+					if (pi->min_price[idx] > lower_bound) {
 						database << "1.0" << std::endl;
 						price_met = true;
 					}
@@ -111,8 +115,8 @@ void net::rebuild_database(int samples) {
 					}
 				}
 				else {
-					if (pi.min_price[idx] <= lower_bound) {
-						if (pi.max_price[idx] >= upper_bound) {
+					if (pi->min_price[idx] <= lower_bound) {
+						if (pi->max_price[idx] >= upper_bound) {
 							database << "0.0" << std::endl;
 							price_met = true;
 						}
@@ -148,11 +152,11 @@ void net::train(void){
 double net::pulse(void){
 	std::vector<double> inputs;
 	for (int i = 0; i < hindsight_level; ++i) {
-		inputs.push_back(pi.opening_price[i]);
-		inputs.push_back(pi.closing_price[i]);
-		inputs.push_back(pi.max_price[i]);
-		inputs.push_back(pi.min_price[i]);
-		inputs.push_back(pi.volume[i]);
+		inputs.push_back(pi->opening_price[i]);
+		inputs.push_back(pi->closing_price[i]);
+		inputs.push_back(pi->max_price[i]);
+		inputs.push_back(pi->min_price[i]);
+		inputs.push_back(pi->volume[i]);
 	}
 	double *outputs = ann.run(inputs.data());
 	return outputs[0];

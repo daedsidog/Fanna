@@ -34,8 +34,5 @@ int main(void) {
 
 	opening_price[0] = 123.0f;
 
-	FreeConsole();
 	build_fanna_database(length, pair, interval, opening_price, closing_price, max_price, min_price, volume, 30);
-
-	system("pause");
 }

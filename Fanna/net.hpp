@@ -20,7 +20,7 @@ class net {
 		desired_error,
 		learning_momentum,
 		learning_rate;
-	pair_info pi;
+	pair_info *pi;
 	std::string netname;
 	FANN::training_algorithm_enum training_algorithm;
 	FANN::neural_net ann;
@@ -29,7 +29,7 @@ class net {
 	void load(void);
 	void save(void);
 public:
-	net(pair_info pi);
+	net(pair_info *pi);
 	void reset(void);
 	void train(void);
 	void rebuild_database(int samples);
