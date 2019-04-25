@@ -16,13 +16,9 @@ net::net(pair_info *pi) {
 	try {
 		cascade_training = stoi(config::parse("cascade_training")) == 1 ? true : false;
 		shuffle_data = stoi(config::parse("shuffle_data")) == 1 ? true : false;
-
-		hindsight_level = stoi(config::parse("hindsight_level"));
-		foresight_level = stoi(config::parse("foresight_level"));
 		training_epochs = stoi(config::parse("training_epochs"));
 		hidden_layers = stoi(config::parse("hidden_layers"));
 		report_interval = stoi(config::parse("report_interval"));
-
 		learning_momentum = stof(config::parse("learning_momentum"));
 		learning_rate = stof(config::parse("learning_rate"));
 		desired_error = stof(config::parse("desired_error"));
@@ -40,6 +36,8 @@ net::net(pair_info *pi) {
 		std::cout << "ERROR: Could not read from config file. Is it located in the working directory?" << std::endl;
 	}
 	this->pi = pi;
+	hindsight_level = pi->hindsight;
+	foresight_level = pi->foresight;
 	std::stringstream namestream;
 	namestream << pi->pair << pi->interval;
 	netname = namestream.str();
