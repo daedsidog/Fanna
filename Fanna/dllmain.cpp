@@ -56,10 +56,10 @@ extern "C" int __declspec(dllexport) train_fanna(PI) {
 	free_console();
 	return 1;
 }
-extern "C" int __declspec(dllexport) build_fanna_database(PI, int samples) {
+extern "C" int __declspec(dllexport) build_fanna_database(PI) {
 	init_console();
 	net ann(&pi);
-	ann.rebuild_database(samples);
+	ann.rebuild_database();
 	free_console();
 	return 1;
 }

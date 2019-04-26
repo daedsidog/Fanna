@@ -28,7 +28,7 @@ struct pair_info {
 
 extern "C" int __declspec(dllexport) reset_fanna(PI);
 extern "C" int __declspec(dllexport) train_fanna(PI);
-extern "C" int __declspec(dllexport) build_fanna_database(PI, int samples);
+extern "C" int __declspec(dllexport) build_fanna_database(PI);
 extern "C" double __declspec(dllexport) pulse_fanna(PI);
 
 #endif

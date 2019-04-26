@@ -35,6 +35,6 @@ public:
 	net(pair_info *pi);
 	void reset(void);
 	void train(void);
-	void rebuild_database(int samples);
+	void rebuild_database(void);
 	double pulse(void);
 };

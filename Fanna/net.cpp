@@ -26,7 +26,6 @@ net::net(pair_info *pi) {
 		training_epochs = stoi(config::parse("training_epochs"));
 		hidden_layers = stoi(config::parse("hidden_layers"));
 		report_interval = stoi(config::parse("report_interval"));
-		cascade_addend = stoi(config::parse("cascade_addend"));
 
 		learning_momentum = stof(config::parse("learning_momentum"));
 		learning_rate = stof(config::parse("learning_rate"));
@@ -66,7 +65,7 @@ void net::load(void) {
 	ann.create_from_file((std::stringstream() << netname << "\\" << netname << ".net").str());
 	if ((ann.get_num_input() != hindsight_level * 5) 
 		|| ((ann.get_num_layers() != hidden_layers) && !cascade_training)
-		|| ((ann.get_total_neurons() != 1 + hindsight_level * 5 + int(round(double(hindsight_level * 5) * hidden_layer_factor)) * hidden_layers) && !cascade_training)) {
+		|| ((ann.get_total_neurons() != 1 + hindsight_level * 5 + int(round(double(double(hindsight_level) * 5) * hidden_layer_factor)) * hidden_layers) && !cascade_training)) {
 		print_warning("Mismatch between ANN and configuration.");
 		reset();
 	}
@@ -85,7 +84,7 @@ void net::create(void) {
 		std::vector<unsigned int> layers;
 		layers.push_back(hindsight_level * 5);
 		for (int i = 0; i < hidden_layers; ++i)
-			layers.push_back(int(round(double(hindsight_level * 5) * hidden_layer_factor)));
+			layers.push_back(int(round(double(double(hindsight_level) * 5) * hidden_layer_factor)));
 		layers.push_back(1);
 		ann.create_standard_array(2 + hidden_layers, layers.data());
 		ann.set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC);
@@ -104,60 +103,58 @@ void net::save(void) {
 	std::cout << "Saving network..." << std::endl;
 	ann.save((std::stringstream() << netname << "\\" << netname << ".net").str());
 }
-void net::rebuild_database(int samples) {
-	if (pi->length - (hindsight_level + foresight_level) >= samples) {
-		std::stringstream dbname;
-		dbname << netname << "\\" << netname << ".dat";
-		std::ofstream database(dbname.str());
-		database << samples << " " << hindsight_level * 5 << " 1" << std::endl;
-		for (int i = 0; i < samples; ++i) {
-			std::cout << "\rRebuilding database (" << i + 1 << "/" << samples << ")...";
-			double avg = 0.0;
-			for (int j = 0; j < hindsight_level; ++j) {
-				int idx = j + i + 1 + foresight_level;
-				avg += pi->max_price[idx] - pi->min_price[idx];
-				database << pi->opening_price[idx] << " ";
-				database << pi->closing_price[idx] << " ";
-				database << pi->max_price[idx] << " ";
-				database << pi->min_price[idx] << " ";
-				database << pi->volume[idx] << " ";
-			}
-			avg /= double(hindsight_level);
-			database << std::endl;
-			bool price_met = false;
-			double
-				upper_bound = pi->closing_price[i + 1 + foresight_level] + avg,
-				lower_bound = pi->closing_price[i + 1 + foresight_level] - avg;
-			for (int j = foresight_level; j > 0 && !price_met; --j) {
-				int idx = j + i;
-				if (pi->max_price[idx] >= upper_bound) {
-					if (pi->min_price[idx] > lower_bound) {
-						database << "1.0" << std::endl;
-						price_met = true;
-					}
-					else {
-						database << "0.5" << std::endl;
-						price_met = true;
-					}
+void net::rebuild_database(void) {
+	std::stringstream dbname;
+	dbname << netname << "\\" << netname << ".dat";
+	std::ofstream database(dbname.str());
+	int samples = pi->length - (hindsight_level + foresight_level);
+	database << samples << " " << hindsight_level * 5 << " 1" << std::endl;
+	for (int i = 0; i < samples; ++i) {
+		std::cout << "\rRebuilding database (" << i + 1 << "/" << samples << ")...";
+		double avg = 0.0;
+		for (int j = 0; j < hindsight_level; ++j) {
+			int idx = j + i + 1 + foresight_level;
+			avg += pi->max_price[idx] - pi->min_price[idx];
+			database << pi->opening_price[idx] << " ";
+			database << pi->closing_price[idx] << " ";
+			database << pi->max_price[idx] << " ";
+			database << pi->min_price[idx] << " ";
+			database << pi->volume[idx] << " ";
+		}
+		avg /= double(hindsight_level);
+		database << std::endl;
+		bool price_met = false;
+		double
+			upper_bound = pi->closing_price[i + 1 + foresight_level] + avg,
+			lower_bound = pi->closing_price[i + 1 + foresight_level] - avg;
+		for (int j = foresight_level; j > 0 && !price_met; --j) {
+			int idx = j + i;
+			if (pi->max_price[idx] >= upper_bound) {
+				if (pi->min_price[idx] > lower_bound) {
+					database << "1.0" << std::endl;
+					price_met = true;
 				}
 				else {
-					if (pi->min_price[idx] <= lower_bound) {
-						database << "0.0" << std::endl;
-						price_met = true;
-					}
-					else {
-						database << "0.5" << std::endl;
-						price_met = true;
-					}
+					database << "0.5" << std::endl;
+					price_met = true;
 				}
 			}
-			if (!price_met)
-				database << "0.5" << std::endl;
+			else {
+				if (pi->min_price[idx] <= lower_bound) {
+					database << "0.0" << std::endl;
+					price_met = true;
+				}
+				else {
+					database << "0.5" << std::endl;
+					price_met = true;
+				}
+			}
 		}
-		database.close();
-		std::cout << std::endl;
+		if (!price_met)
+			database << "0.5" << std::endl;
 	}
-	else print_error("Amount of samples too large for the available pair data.");
+	database.close();
+	std::cout << std::endl;
 }
 void net::train(void){
 	if (!std::filesystem::exists((std::stringstream() << netname << "\\" << netname << ".dat").str())) {
@@ -175,7 +172,7 @@ void net::train(void){
 		data.shuffle_train_data();
 	if(!cascade_training)
 		ann.train_on_data(data, training_epochs, report_interval, desired_error);
-	else ann.cascadetrain_on_data(data, INT_MAX, cascade_addend, desired_error);
+	else ann.cascadetrain_on_data(data, INT_MAX, 1, desired_error);
 	data.destroy_train();
 	save();
 }
