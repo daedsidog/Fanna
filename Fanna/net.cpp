@@ -64,8 +64,8 @@ void net::load(void) {
 	std::cout << "Loading " << netname << "..." << std::endl;
 	ann.create_from_file((std::stringstream() << netname << "\\" << netname << ".net").str());
 	if ((ann.get_num_input() != hindsight_level * 5) 
-		|| ((ann.get_num_layers() != hidden_layers) && !cascade_training)
-		|| ((ann.get_total_neurons() != 1 + hindsight_level * 5 + int(round(double(double(hindsight_level) * 5) * hidden_layer_factor)) * hidden_layers) && !cascade_training)) {
+		|| ((ann.get_num_layers() != hidden_layers + 2) && !cascade_training)
+		|| ((ann.get_total_neurons() - (ann.get_num_layers() - 1)  != 1 + hindsight_level * 5 + int(round(double(double(hindsight_level) * 5) * hidden_layer_factor)) * hidden_layers) && !cascade_training)) {
 		print_warning("Mismatch between ANN and configuration.");
 		reset();
 	}
