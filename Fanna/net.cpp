@@ -54,7 +54,7 @@ net::net(pair_info *pi) {
 void net::load(void) {
 	std::cout << "Loading " << netname << "..." << std::endl;
 	ann.create_from_file((std::stringstream() << netname << "\\" << netname << ".net").str());
-	if ((ann.get_num_input != hindsight_level * 5) || ((ann.get_num_layers != hidden_layers) && !cascade_training)) {
+	if ((ann.get_num_input() != hindsight_level * 5) || ((ann.get_num_layers() != hidden_layers) && !cascade_training)) {
 		std::cout << "WARNING: Mismatch between ANN and configuration." << std::endl;
 		reset();
 	}
@@ -151,7 +151,7 @@ void net::train(void){
 		std::cout << "ERROR: No training database file for " << netname << " detected. Have you built one?" << std::endl;
 	FANN::training_data data;
 	data.read_train_from_file((std::stringstream() << netname << "\\" << netname << ".dat").str());
-	if (data.num_input_train_data() != ann.get_num_input) {
+	if (data.num_input_train_data() != ann.get_num_input()) {
 		std::cout << "ERROR: Mismatch between training file and ANN. Rebuild the training database." << std::endl;
 		system("pause");
 	}
