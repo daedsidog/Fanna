@@ -172,6 +172,7 @@ void net::train(void){
 	ann.set_training_algorithm(training_algorithm);
 	if (shuffle_data)
 		data.shuffle_train_data();
+	data.scale_input_train_data(0.0, 1.0);
 	if(!cascade_training)
 		ann.train_on_data(data, training_epochs, report_interval, desired_error);
 	else ann.cascadetrain_on_data(data, INT_MAX, 1, desired_error);
@@ -187,6 +188,8 @@ double net::pulse(void){
 		inputs.push_back(pi->min_price[i]);
 		inputs.push_back(pi->volume[i]);
 	}
-	double *outputs = ann.run(inputs.data());
+	double* inputs_array = inputs.data();
+	ann.scale_input(inputs_array);
+	double *outputs = ann.run(inputs_array);
 	return outputs[0];
 }
