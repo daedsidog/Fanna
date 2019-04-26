@@ -11,6 +11,13 @@
 #include "net.hpp"
 #include "config.hpp"
 
+void print_error(std::string errmsg) {
+	std::cout << "ERROR: " << errmsg << std::endl;
+	system("pause");
+}
+void print_warning(std::string warnmsg) {
+	std::cout << "WARNING: " << warnmsg << std::endl;
+}
 
 net::net(pair_info *pi) {
 	try {
@@ -35,7 +42,8 @@ net::net(pair_info *pi) {
 		else training_algorithm = FANN::TRAIN_RPROP;
 	}
 	catch (std::exception ex) {
-		std::cout << "ERROR: Could not read from config file. Is it located in the working directory?" << std::endl;
+		print_error("Could not read from config file. Is it located in the working directory?");
+		return;
 	}
 	this->pi = pi;
 	hindsight_level = pi->hindsight;
@@ -55,7 +63,7 @@ void net::load(void) {
 	std::cout << "Loading " << netname << "..." << std::endl;
 	ann.create_from_file((std::stringstream() << netname << "\\" << netname << ".net").str());
 	if ((ann.get_num_input() != hindsight_level * 5) || ((ann.get_num_layers() != hidden_layers) && !cascade_training)) {
-		std::cout << "WARNING: Mismatch between ANN and configuration." << std::endl;
+		print_warning("Mismatch between ANN and configuration.");
 		reset();
 	}
 }
@@ -66,7 +74,8 @@ void net::create(void) {
 			std::filesystem::create_directory(netname);
 	}
 	catch (std::exception ex) {
-		std::cout << "ERROR: Could not create ANN directory. Make sure you run the script as administrator." << std::endl;
+		print_error("Could not create ANN directory. Make sure you run the script as administrator.");
+		return;
 	}
 	if (!cascade_training) {
 		std::vector<unsigned int> layers;
@@ -92,7 +101,7 @@ void net::save(void) {
 	ann.save((std::stringstream() << netname << "\\" << netname << ".net").str());
 }
 void net::rebuild_database(int samples) {
-	if (pi->length - (hindsight_level + foresight_level) >= samples)  {
+	if (pi->length - (hindsight_level + foresight_level) >= samples) {
 		std::stringstream dbname;
 		dbname << netname << "\\" << netname << ".dat";
 		std::ofstream database(dbname.str());
@@ -144,16 +153,18 @@ void net::rebuild_database(int samples) {
 		database.close();
 		std::cout << std::endl;
 	}
-	else std::cout << "ERROR: Amount of samples too large for the available pair data." << std::endl;
+	else print_error("Amount of samples too large for the available pair data.");
 }
 void net::train(void){
-	if (!std::filesystem::exists((std::stringstream() << netname << "\\" << netname << ".dat").str()))
-		std::cout << "ERROR: No training database file for " << netname << " detected. Have you built one?" << std::endl;
+	if (!std::filesystem::exists((std::stringstream() << netname << "\\" << netname << ".dat").str())) {
+		print_error((std::stringstream() << "No training database file for " << netname << " detected. Have you built one?").str());
+		return;
+	}
 	FANN::training_data data;
 	data.read_train_from_file((std::stringstream() << netname << "\\" << netname << ".dat").str());
 	if (data.num_input_train_data() != ann.get_num_input()) {
-		std::cout << "ERROR: Mismatch between training file and ANN. Rebuild the training database." << std::endl;
-		system("pause");
+		print_error("Mismatch between training file and ANN. Rebuild the training database.");
+		return;
 	}
 	ann.set_training_algorithm(training_algorithm);
 	if (shuffle_data)
