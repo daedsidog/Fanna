@@ -40,6 +40,8 @@ net::net(pair_info *pi) {
 			training_algorithm = FANN::TRAIN_BATCH;
 		else if (training_algstr.find("QUICKPROP") != training_algstr.npos)
 			training_algorithm = FANN::TRAIN_QUICKPROP;
+		else if (training_algstr.find("SAPROP") != training_algstr.npos)
+			training_algorithm = FANN::TRAIN_SARPROP;
 		else training_algorithm = FANN::TRAIN_RPROP;
 	}
 	catch (std::exception ex) {
