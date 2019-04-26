@@ -19,6 +19,8 @@ net::net(pair_info *pi) {
 		training_epochs = stoi(config::parse("training_epochs"));
 		hidden_layers = stoi(config::parse("hidden_layers"));
 		report_interval = stoi(config::parse("report_interval"));
+		cascade_addend = stoi(config::parse("cascade_addend"));
+
 		learning_momentum = stof(config::parse("learning_momentum"));
 		learning_rate = stof(config::parse("learning_rate"));
 		desired_error = stof(config::parse("desired_error"));
@@ -150,7 +152,7 @@ void net::train(void){
 		data.shuffle_train_data();
 	if(!cascade_training)
 		ann.train_on_data(data, training_epochs, report_interval, desired_error);
-	else ann.cascadetrain_on_data(data, INT_MAX, 1, desired_error);
+	else ann.cascadetrain_on_data(data, INT_MAX, cascade_addend, desired_error);
 	data.destroy_train();
 	save();
 }

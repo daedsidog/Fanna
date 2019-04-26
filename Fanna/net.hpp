@@ -15,7 +15,8 @@ class net {
 		foresight_level,
 		training_epochs,
 		hidden_layers,
-		report_interval;
+		report_interval,
+		cascade_addend;
 	float 
 		desired_error,
 		learning_momentum,
