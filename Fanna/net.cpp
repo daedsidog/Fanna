@@ -113,22 +113,19 @@ void net::rebuild_database(void) {
 	database << samples << " " << hindsight_level * 5 << " 1" << std::endl;
 	for (int i = 0; i < samples; ++i) {
 		std::cout << "\rRebuilding database (" << i + 1 << "/" << samples << ")...";
-		double avg = 0.0;
 		for (int j = 0; j < hindsight_level; ++j) {
 			int idx = j + i + 1 + foresight_level;
-			avg += pi->max_price[idx] - pi->min_price[idx];
 			database << pi->opening_price[idx] << " ";
 			database << pi->closing_price[idx] << " ";
 			database << pi->max_price[idx] << " ";
 			database << pi->min_price[idx] << " ";
 			database << pi->volume[idx] << " ";
 		}
-		avg /= double(hindsight_level);
 		database << std::endl;
 		bool price_met = false;
 		double
-			upper_bound = pi->closing_price[i + 1 + foresight_level] + avg,
-			lower_bound = pi->closing_price[i + 1 + foresight_level] - avg;
+			upper_bound = pi->closing_price[i + 1 + foresight_level] + pi->offset,
+			lower_bound = pi->closing_price[i + 1 + foresight_level] - pi->offset;
 		for (int j = foresight_level; j > 0 && !price_met; --j) {
 			int idx = j + i;
 			if (pi->max_price[idx] >= upper_bound) {

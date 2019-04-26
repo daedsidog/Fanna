@@ -28,6 +28,7 @@ pair_info::pair_info(void){
 	this->closing_price = NULL;
 	this->max_price = NULL;
 	this->min_price = NULL;
+	this->offset = 0;
 }
 pair_info::pair_info(PI){
 	this->hindsight = hindsight;
@@ -40,6 +41,7 @@ pair_info::pair_info(PI){
 	this->closing_price = closing_price;
 	this->max_price = max_price;
 	this->min_price = min_price;
+	this->offset = offset;
 }
 
 extern "C" int __declspec(dllexport) reset_fanna(PI) {
