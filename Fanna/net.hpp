@@ -21,6 +21,8 @@ class net {
 		desired_error,
 		learning_momentum,
 		learning_rate;
+	double 	
+		hidden_layer_factor;
 	pair_info *pi;
 	std::string netname;
 	FANN::training_algorithm_enum training_algorithm;
