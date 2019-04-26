@@ -9,3 +9,4 @@ hidden_layers = 2
 shuffle_data = 0		//	Binary value
 report_interval = 1
 cascade_addend = 32
+hidden_layer_factor = 2.0

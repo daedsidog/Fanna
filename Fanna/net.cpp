@@ -32,6 +32,8 @@ net::net(pair_info *pi) {
 		learning_rate = stof(config::parse("learning_rate"));
 		desired_error = stof(config::parse("desired_error"));
 
+		hidden_layer_factor = stod(config::parse("hidden_layer_factor"));
+
 		std::string training_algstr = config::parse("training_algorithm");
 		if (training_algstr.find("INCREMENTAL") != training_algstr.npos)
 			training_algorithm = FANN::TRAIN_INCREMENTAL;
@@ -62,7 +64,9 @@ net::net(pair_info *pi) {
 void net::load(void) {
 	std::cout << "Loading " << netname << "..." << std::endl;
 	ann.create_from_file((std::stringstream() << netname << "\\" << netname << ".net").str());
-	if ((ann.get_num_input() != hindsight_level * 5) || ((ann.get_num_layers() != hidden_layers) && !cascade_training)) {
+	if ((ann.get_num_input() != hindsight_level * 5) 
+		|| ((ann.get_num_layers() != hidden_layers) && !cascade_training)
+		|| ((ann.get_total_neurons() != 1 + hindsight_level * 5 + int(round(double(hindsight_level * 5) * hidden_layer_factor)) * hidden_layers) && !cascade_training)) {
 		print_warning("Mismatch between ANN and configuration.");
 		reset();
 	}
@@ -81,7 +85,7 @@ void net::create(void) {
 		std::vector<unsigned int> layers;
 		layers.push_back(hindsight_level * 5);
 		for (int i = 0; i < hidden_layers; ++i)
-			layers.push_back(hindsight_level * 5);
+			layers.push_back(int(round(double(hindsight_level * 5) * hidden_layer_factor)));
 		layers.push_back(1);
 		ann.create_standard_array(2 + hidden_layers, layers.data());
 		ann.set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC);
