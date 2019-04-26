@@ -46,7 +46,6 @@ extern "C" int __declspec(dllexport) reset_fanna(PI) {
 	init_console();
 	net ann(&pi);
 	ann.reset();
-	system("pause");
 	free_console();
 	return 1;
 }
@@ -54,7 +53,6 @@ extern "C" int __declspec(dllexport) train_fanna(PI) {
 	init_console();
 	net ann(&pi);
 	ann.train();
-	system("pause");
 	free_console();
 	return 1;
 }
@@ -62,7 +60,6 @@ extern "C" int __declspec(dllexport) build_fanna_database(PI, int samples) {
 	init_console();
 	net ann(&pi);
 	ann.rebuild_database(samples);
-	system("pause");
 	free_console();
 	return 1;
 }
