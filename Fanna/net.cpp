@@ -105,6 +105,8 @@ void net::save(void) {
 	ann.save((std::stringstream() << netname << "\\" << netname << ".net").str());
 }
 void net::rebuild_database(void) {
+	if (hindsight_level >= pi->length)
+		print_error("Hindsight level is too large for the available chart history.");
 	std::stringstream dbname;
 	dbname << netname << "\\" << netname << ".dat";
 	std::ofstream database(dbname.str());
@@ -112,6 +114,22 @@ void net::rebuild_database(void) {
 	std::vector<double> inputs, outputs;
 	for (int i = 0; i < pi->length - hindsight_level; ++i) {
 		std::cout << "\rRebuilding database (" << i + 1 << "/" << pi->length << ")...";
+		bool bad_bar = false;
+		for (int j = 0; j < hindsight_level; ++j) {
+			int idx = j + i + 1;
+			if (pi->opening_price[idx] < 0)
+				bad_bar = true;
+			else if (pi->closing_price[idx] < 0)
+				bad_bar = true;
+			else if (pi->max_price[idx] < 0)
+				bad_bar = true;
+			else if (pi->min_price[idx] < 0)
+				bad_bar = true;
+			else if (pi->volume[idx] < 0)
+				bad_bar = true;
+		}
+		if (bad_bar)
+			continue;
 		bool price_met = false;
 		double
 			upper_bound = pi->closing_price[i + 1] + pi->offset,
@@ -146,7 +164,7 @@ void net::rebuild_database(void) {
 	for (int i = 0; i < samples; ++i) {
 		for (int j = 0; j < hindsight_level * 5; ++j)
 			database << inputs.at(i * hindsight_level * 5 + j) << " ";
-		database << std::endl << inputs.at(i) << " " << std::endl;
+		database << std::endl << outputs.at(i) << " " << std::endl;
 	}
 	database.close();
 	std::cout << std::endl;
@@ -165,7 +183,8 @@ void net::train(void){
 	ann.set_training_algorithm(training_algorithm);
 	if (shuffle_data)
 		data.shuffle_train_data();
-	data.scale_input_train_data(0.0, 1.0);
+	ann.set_scaling_params(data, 0.0f, 1.0f, 0.0f, 1.0f);
+	ann.scale_train(data);
 	if(!cascade_training)
 		ann.train_on_data(data, training_epochs, report_interval, desired_error);
 	else ann.cascadetrain_on_data(data, INT_MAX, 1, desired_error);
