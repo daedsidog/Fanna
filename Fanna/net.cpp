@@ -114,35 +114,19 @@ void net::rebuild_database(void) {
 	std::vector<double> inputs, outputs;
 	for (int i = 0; i < pi->length - hindsight_level; ++i) {
 		std::cout << "\rRebuilding database (" << i + 1 << "/" << pi->length << ")...";
-		bool bad_bar = false;
-		for (int j = 0; j < hindsight_level; ++j) {
-			int idx = j + i + 1;
-			if (pi->opening_price[idx] < 0)
-				bad_bar = true;
-			else if (pi->closing_price[idx] < 0)
-				bad_bar = true;
-			else if (pi->max_price[idx] < 0)
-				bad_bar = true;
-			else if (pi->min_price[idx] < 0)
-				bad_bar = true;
-			else if (pi->volume[idx] < 0)
-				bad_bar = true;
-		}
-		if (bad_bar)
-			continue;
 		bool price_met = false;
 		double
 			upper_bound = pi->closing_price[i + 1] + pi->offset,
 			lower_bound = pi->closing_price[i + 1] - pi->offset;
 		for (int j = i; j > 0 && !price_met; --j) {
-			if (pi->max_price[j] >= upper_bound) {
+			if (pi->max_price[j] > upper_bound) {
 				if (pi->min_price[j] > lower_bound) {
 					outputs.push_back(1.0);
 					price_met = true;
 				}
 			}
 			else {
-				if (pi->min_price[j] <= lower_bound) {
+				if (pi->min_price[j] < lower_bound) {
 					outputs.push_back(0.0);
 					price_met = true;
 				}
