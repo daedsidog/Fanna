@@ -145,7 +145,7 @@ void net::rebuild_database(void) {
 	database << samples << " " << hindsight_level * 5 << " 1" << std::endl;
 	for (int i = 0; i < samples; ++i) {
 		for (int j = 0; j < hindsight_level * 5; ++j)
-			database << inputs.at(j * hindsight_level * 5 + i) << " ";
+			database << inputs.at(i * hindsight_level * 5 + j) << " ";
 		database << std::endl << inputs.at(i) << " " << std::endl;
 	}
 	database.close();
