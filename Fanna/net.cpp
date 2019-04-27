@@ -113,7 +113,7 @@ void net::rebuild_database(void) {
 	int samples = 0;
 	std::vector<double> inputs, outputs;
 	for (int i = 0; i < pi->length - hindsight_level; ++i) {
-		std::cout << "\rRebuilding database (" << i + 1 << "/" << pi->length << ")...";
+		std::cout << "\rRebuilding database (" << i + 1 << "/" << pi->length - hindsight_level << ")...";
 		bool price_met = false;
 		double
 			upper_bound = pi->closing_price[i + 1] + pi->offset,
