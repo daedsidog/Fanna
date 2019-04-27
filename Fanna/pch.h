@@ -5,13 +5,12 @@
 
 #include <string>
 
-#define PI  double offset, int hindsight, int foresight, long length, char *pair, char *interval, double *opening_price, double *closing_price, double *max_price, double *min_price, double *volume
-#define PIARGS offset, hindsight, foresight, length, pair, interval, opening_price, closing_price, max_price, min_price, volume
+#define PI  double offset, int hindsight, long length, char *pair, char *interval, double *opening_price, double *closing_price, double *max_price, double *min_price, double *volume
+#define PIARGS offset, hindsight, length, pair, interval, opening_price, closing_price, max_price, min_price, volume
 
 struct pair_info {
 	int
-		hindsight,
-		foresight;
+		hindsight;
 	long length;
 	double
 		* opening_price,

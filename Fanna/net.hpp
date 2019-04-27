@@ -12,7 +12,6 @@ class net {
 		shuffle_data;
 	int
 		hindsight_level,
-		foresight_level,
 		training_epochs,
 		hidden_layers,
 		report_interval,

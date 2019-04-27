@@ -50,7 +50,6 @@ net::net(pair_info *pi) {
 	}
 	this->pi = pi;
 	hindsight_level = pi->hindsight;
-	foresight_level = pi->foresight;
 	std::stringstream namestream;
 	namestream << pi->pair << pi->interval;
 	netname = namestream.str();
@@ -109,48 +108,48 @@ void net::rebuild_database(void) {
 	std::stringstream dbname;
 	dbname << netname << "\\" << netname << ".dat";
 	std::ofstream database(dbname.str());
-	int samples = pi->length - (hindsight_level + foresight_level);
-	database << samples << " " << hindsight_level * 5 << " 1" << std::endl;
-	for (int i = 0; i < samples; ++i) {
-		std::cout << "\rRebuilding database (" << i + 1 << "/" << samples << ")...";
-		for (int j = 0; j < hindsight_level; ++j) {
-			int idx = j + i + 1 + foresight_level;
-			database << pi->opening_price[idx] << " ";
-			database << pi->closing_price[idx] << " ";
-			database << pi->max_price[idx] << " ";
-			database << pi->min_price[idx] << " ";
-			database << pi->volume[idx] << " ";
-		}
-		database << std::endl;
+	int samples = 0;
+	std::vector<double> inputs, outputs;
+	for (int i = 0; i < pi->length - hindsight_level; ++i) {
+		std::cout << "\rRebuilding database (" << i + 1 << "/" << pi->length << ")...";
 		bool price_met = false;
 		double
-			upper_bound = pi->closing_price[i + 1 + foresight_level] + pi->offset,
-			lower_bound = pi->closing_price[i + 1 + foresight_level] - pi->offset;
-		for (int j = foresight_level; j > 0 && !price_met; --j) {
-			int idx = j + i;
-			if (pi->max_price[idx] >= upper_bound) {
-				if (pi->min_price[idx] > lower_bound) {
-					database << "1.0" << std::endl;
-					price_met = true;
-				}
-				else {
-					database << "0.5" << std::endl;
+			upper_bound = pi->closing_price[i + 1] + pi->offset,
+			lower_bound = pi->closing_price[i + 1] - pi->offset;
+		for (int j = i; j > 0 && !price_met; --j) {
+			if (pi->max_price[j] >= upper_bound) {
+				if (pi->min_price[j] > lower_bound) {
+					outputs.push_back(1.0);
 					price_met = true;
 				}
 			}
 			else {
-				if (pi->min_price[idx] <= lower_bound) {
-					database << "0.0" << std::endl;
-					price_met = true;
-				}
-				else {
-					database << "0.5" << std::endl;
+				if (pi->min_price[j] <= lower_bound) {
+					outputs.push_back(0.0);
 					price_met = true;
 				}
 			}
 		}
-		if (!price_met)
-			database << "0.5" << std::endl;
+		if (price_met) {
+			++samples;
+			for (int j = 0; j < hindsight_level; ++j) {
+				int idx = j + i + 1;
+				inputs.push_back(pi->opening_price[idx]);
+				inputs.push_back(pi->closing_price[idx]);
+				inputs.push_back(pi->max_price[idx]);
+				inputs.push_back(pi->min_price[idx]);
+				inputs.push_back(pi->volume[idx]);
+			}
+		}
+	}
+	database << samples << " " << hindsight_level * 5 << " 1" << std::endl;
+	for (int i = 0; i < samples; ++i) {
+		database << inputs.at(i * 5) << " ";
+		database << inputs.at(1 + i * 5) << " ";
+		database << inputs.at(2 + i * 5) << " ";
+		database << inputs.at(3 + i * 5) << " ";
+		database << inputs.at(4 + i * 5) << " " << std::endl;
+		database << inputs.at(i) << " " << std::endl;
 	}
 	database.close();
 	std::cout << std::endl;
