@@ -18,12 +18,18 @@ void print_error(std::string errmsg) {
 void print_warning(std::string warnmsg) {
 	std::cout << "WARNING: " << warnmsg << std::endl;
 }
+int print_callback(FANN::neural_net& net, FANN::training_data& train, unsigned int max_epochs, unsigned int epochs_between_reports, float desired_error, unsigned int epochs, void* user_data){
+	std::cout << "Epoch:     " << std::setw(8) << epochs << "/" << max_epochs << ", Current MSE: " << std::left << net.get_MSE() << std::right << ", Desired MSE: " << std::left << desired_error << std::right << ", Failed bits: " << net.get_bit_fail() << std::endl;
+	bool dynamic_momentum = stoi(config::parse("dynamic_momentum")) == 1 ? true : false;
+	if (dynamic_momentum)
+		net.set_learning_momentum(pow(net.get_MSE(), 2));
+	return 0;
+}
 
 net::net(pair_info *pi) {
 	try {
 		cascade_training = stoi(config::parse("cascade_training")) == 1 ? true : false;
 		shuffle_data = stoi(config::parse("shuffle_data")) == 1 ? true : false;
-		dynamic_momentum = stoi(config::parse("dynamic_momentum")) == 1 ? true : false;
 
 		training_epochs = stoi(config::parse("training_epochs"));
 		hidden_layers = stoi(config::parse("hidden_layers"));
@@ -62,42 +68,6 @@ net::net(pair_info *pi) {
 	else create();
 	ann.set_learning_momentum(learning_momentum);
 	ann.set_learning_rate(learning_rate);
-}
-void net::load(void) {
-	std::cout << "Loading " << netname << "..." << std::endl;
-	ann.create_from_file((std::stringstream() << netname << "\\" << netname << ".net").str());
-	if ((ann.get_num_input() != hindsight_level * 5) 
-		|| ((ann.get_num_layers() != hidden_layers + 2) && !cascade_training)
-		|| ((ann.get_total_neurons() - (ann.get_num_layers() - 1)  != 1 + hindsight_level * 5 + int(round(double(double(hindsight_level) * 5) * hidden_layer_factor)) * hidden_layers) && !cascade_training)) {
-		print_warning("Mismatch between ANN and configuration.");
-		reset();
-	}
-}
-void net::create(void) {
-	std::cout << "Creating " << netname << "..." << std::endl;
-	try {
-		if (!std::filesystem::exists(netname))
-			std::filesystem::create_directory(netname);
-	}
-	catch (std::exception ex) {
-		print_error("Could not create ANN directory. Make sure you run the script as administrator.");
-		return;
-	}
-	if (!cascade_training) {
-		std::vector<unsigned int> layers;
-		layers.push_back(hindsight_level * 5);
-		for (int i = 0; i < hidden_layers; ++i)
-			layers.push_back(int(round(double(double(hindsight_level) * 5) * hidden_layer_factor)));
-		layers.push_back(1);
-		ann.create_standard_array(2 + hidden_layers, layers.data());
-		ann.set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC);
-	}
-	else ann.create_shortcut(2, hindsight_level * 5, 1);
-	ann.randomize_weights(0.0f, 1.0f);
-}
-void net::save(void) {
-	std::cout << "Saving network..." << std::endl;
-	ann.save((std::stringstream() << netname << "\\" << netname << ".net").str());
 }
 int net::reset(void) {
 	std::cout << "Resetting " << netname << "..." << std::endl;
@@ -175,8 +145,10 @@ int net::train(void){
 		data.shuffle_train_data();
 	ann.set_scaling_params(data, 0.0f, 1.0f, 0.0f, 1.0f);
 	ann.scale_train(data);
-	if(!cascade_training)
+	if (!cascade_training) {
+		ann.set_callback(print_callback, NULL);
 		ann.train_on_data(data, training_epochs, report_interval, desired_error);
+	}
 	else ann.cascadetrain_on_data(data, INT_MAX, 1, desired_error);
 	data.destroy_train();
 	save();
@@ -195,4 +167,42 @@ double net::pulse(void){
 	ann.scale_input(inputs_array);
 	double *outputs = ann.run(inputs_array);
 	return outputs[0];
+}
+
+void net::load(void) {
+	std::cout << "Loading " << netname << "..." << std::endl;
+	ann.create_from_file((std::stringstream() << netname << "\\" << netname << ".net").str());
+	if ((ann.get_num_input() != hindsight_level * 5)
+		|| ((ann.get_num_layers() != hidden_layers + 2) && !cascade_training)
+		|| ((ann.get_total_neurons() - (ann.get_num_layers() - 1) != 1 + hindsight_level * 5 + int(round(double(double(hindsight_level) * 5) * hidden_layer_factor)) * hidden_layers) && !cascade_training)) {
+		print_warning("Mismatch between ANN and configuration.");
+		reset();
+	}
+}
+void net::create(void) {
+	std::cout << "Creating " << netname << "..." << std::endl;
+	try {
+		if (!std::filesystem::exists(netname))
+			std::filesystem::create_directory(netname);
+	}
+	catch (std::exception ex) {
+		print_error("Could not create ANN directory. Make sure you run the script as administrator.");
+		return;
+	}
+	if (!cascade_training) {
+		std::vector<unsigned int> layers;
+		layers.push_back(hindsight_level * 5);
+		for (int i = 0; i < hidden_layers; ++i)
+			layers.push_back(int(round(double(double(hindsight_level) * 5) * hidden_layer_factor)));
+		layers.push_back(1);
+		ann.create_standard_array(2 + hidden_layers, layers.data());
+		ann.set_activation_function_hidden(FANN::ELLIOT);
+		ann.set_activation_function_output(FANN::ELLIOT);
+	}
+	else ann.create_shortcut(2, hindsight_level * 5, 1);
+	ann.randomize_weights(0.0f, 1.0f);
+}
+void net::save(void) {
+	std::cout << "Saving network..." << std::endl;
+	ann.save((std::stringstream() << netname << "\\" << netname << ".net").str());
 }

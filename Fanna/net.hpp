@@ -9,14 +9,12 @@
 class net {
 	bool
 		cascade_training,
-		shuffle_data,
-		dynamic_momentum;
+		shuffle_data;
 	int
 		hindsight_level,
 		training_epochs,
 		hidden_layers,
-		report_interval,
-		cascade_addend;
+		report_interval;
 	float 
 		desired_error,
 		learning_momentum,
