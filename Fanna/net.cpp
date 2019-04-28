@@ -23,6 +23,8 @@ net::net(pair_info *pi) {
 	try {
 		cascade_training = stoi(config::parse("cascade_training")) == 1 ? true : false;
 		shuffle_data = stoi(config::parse("shuffle_data")) == 1 ? true : false;
+		dynamic_momentum = stoi(config::parse("dynamic_momentum")) == 1 ? true : false;
+
 		training_epochs = stoi(config::parse("training_epochs"));
 		hidden_layers = stoi(config::parse("hidden_layers"));
 		report_interval = stoi(config::parse("report_interval"));
@@ -93,20 +95,23 @@ void net::create(void) {
 	else ann.create_shortcut(2, hindsight_level * 5, 1);
 	ann.randomize_weights(-1.0f, 1.0f);
 }
-void net::reset(void) {
+void net::save(void) {
+	std::cout << "Saving network..." << std::endl;
+	ann.save((std::stringstream() << netname << "\\" << netname << ".net").str());
+}
+int net::reset(void) {
 	std::cout << "Resetting " << netname << "..." << std::endl;
 	std::filesystem::remove((std::stringstream() << netname << "\\" << netname << ".net").str());
 	ann.destroy();
 	create();
 	save();
+	return 1;
 }
-void net::save(void) {
-	std::cout << "Saving network..." << std::endl;
-	ann.save((std::stringstream() << netname << "\\" << netname << ".net").str());
-}
-void net::rebuild_database(void) {
-	if (hindsight_level >= pi->length)
+int net::rebuild_database(void) {
+	if (hindsight_level >= pi->length) {
 		print_error("Hindsight level is too large for the available chart history.");
+		return 0;
+	}
 	std::stringstream dbname;
 	dbname << netname << "\\" << netname << ".dat";
 	std::ofstream database(dbname.str());
@@ -152,17 +157,18 @@ void net::rebuild_database(void) {
 	}
 	database.close();
 	std::cout << std::endl;
+	return samples == 0 ? 0 : 1;
 }
-void net::train(void){
+int net::train(void){
 	if (!std::filesystem::exists((std::stringstream() << netname << "\\" << netname << ".dat").str())) {
 		print_error((std::stringstream() << "No training database file for " << netname << " detected. Have you built one?").str());
-		return;
+		return 0;
 	}
 	FANN::training_data data;
 	data.read_train_from_file((std::stringstream() << netname << "\\" << netname << ".dat").str());
 	if (data.num_input_train_data() != ann.get_num_input()) {
 		print_error("Mismatch between training file and ANN. Rebuild the training database.");
-		return;
+		return 0;
 	}
 	ann.set_training_algorithm(training_algorithm);
 	if (shuffle_data)
@@ -174,6 +180,7 @@ void net::train(void){
 	else ann.cascadetrain_on_data(data, INT_MAX, 1, desired_error);
 	data.destroy_train();
 	save();
+	return 1;
 }
 double net::pulse(void){
 	std::vector<double> inputs;

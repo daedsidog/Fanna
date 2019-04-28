@@ -9,7 +9,8 @@
 class net {
 	bool
 		cascade_training,
-		shuffle_data;
+		shuffle_data,
+		dynamic_momentum;
 	int
 		hindsight_level,
 		training_epochs,
@@ -32,8 +33,8 @@ class net {
 	void save(void);
 public:
 	net(pair_info *pi);
-	void reset(void);
-	void train(void);
-	void rebuild_database(void);
+	int reset(void);
+	int train(void);
+	int rebuild_database(void);
 	double pulse(void);
 };

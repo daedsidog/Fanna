@@ -45,23 +45,23 @@ pair_info::pair_info(PI){
 extern "C" int __declspec(dllexport) reset_fanna(PI) {
 	init_console();
 	net ann(&pi);
-	ann.reset();
+	int response = ann.reset();
 	free_console();
-	return 1;
+	return response;
 }
 extern "C" int __declspec(dllexport) train_fanna(PI) {
 	init_console();
 	net ann(&pi);
-	ann.train();
+	int response = ann.train();
 	free_console();
-	return 1;
+	return response;
 }
 extern "C" int __declspec(dllexport) build_fanna_database(PI) {
 	init_console();
 	net ann(&pi);
-	ann.rebuild_database();
+	int response = ann.rebuild_database();
 	free_console();
-	return 1;
+	return response;
 }
 extern "C" double __declspec(dllexport) pulse_fanna(PI) {
 	pair_info pi = pair_info(PIARGS);
