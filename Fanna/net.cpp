@@ -11,15 +11,19 @@
 #include "net.hpp"
 #include "config.hpp"
 
+static bool g_console = false;
+
 void print_error(std::string errmsg) {
 	std::cout << "ERROR: " << errmsg << std::endl;
-	system("pause");
+	if(g_console)
+		system("pause");
 }
 void print_warning(std::string warnmsg) {
 	std::cout << "WARNING: " << warnmsg << std::endl;
 }
 
 net::net(pair_info *pi) {
+	g_console = pi->console;
 	try {
 		cascade_training = stoi(config::parse("cascade_training")) == 1 ? true : false;
 		shuffle_data = stoi(config::parse("shuffle_data")) == 1 ? true : false;

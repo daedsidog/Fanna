@@ -5,7 +5,7 @@
 #include "net.hpp"
 
 #define free_console() FreeConsole()
-#define init_console() AllocConsole(); freopen_s((FILE * *)stdout, "CONOUT$", "w", stdout); pair_info pi = pair_info(PIARGS);
+#define init_console() AllocConsole(); freopen_s((FILE * *)stdout, "CONOUT$", "w", stdout);
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
 	switch (ul_reason_for_call) {
@@ -18,6 +18,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 	return TRUE;
 }
 pair_info::pair_info(void){
+	this->console = false;
 	this->hindsight = 0;
 	this->length = 0;
 	this->pair = "";
@@ -30,6 +31,7 @@ pair_info::pair_info(void){
 	this->offset = 0;
 }
 pair_info::pair_info(PI){
+	this->console = console;
 	this->hindsight = hindsight;
 	this->length = length;
 	this->pair = pair;
@@ -43,24 +45,33 @@ pair_info::pair_info(PI){
 }
 
 extern "C" int __declspec(dllexport) reset_fanna(PI) {
-	init_console();
+	if (console)
+		init_console();
+	pair_info pi = pair_info(PIARGS);
 	net ann(&pi);
 	int response = ann.reset();
-	free_console();
+	if (console)
+		free_console();
 	return response;
 }
 extern "C" int __declspec(dllexport) train_fanna(PI) {
-	init_console();
+	if (console)
+		init_console();
+	pair_info pi = pair_info(PIARGS);
 	net ann(&pi);
 	int response = ann.train();
-	free_console();
+	if (console)
+		free_console();
 	return response;
 }
 extern "C" int __declspec(dllexport) build_fanna_database(PI) {
-	init_console();
+	if(console)
+		init_console();
+	pair_info pi = pair_info(PIARGS);
 	net ann(&pi);
 	int response = ann.rebuild_database();
-	free_console();
+	if (console)
+		free_console();
 	return response;
 }
 extern "C" double __declspec(dllexport) pulse_fanna(PI) {
