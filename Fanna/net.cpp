@@ -191,8 +191,8 @@ void net::create(void) {
 			layers.push_back(int(round(double(double(hindsight_level) * 5) * hidden_layer_factor)));
 		layers.push_back(1);
 		ann.create_standard_array(2 + hidden_layers, layers.data());
-		ann.set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC);
-		ann.set_activation_function_output(FANN::SIGMOID_STEPWISE);
+		ann.set_activation_function_hidden(FANN::ELLIOT_SYMMETRIC);
+		ann.set_activation_function_output(FANN::ELLIOT);
 	}
 	else ann.create_shortcut(2, hindsight_level * 5, 1);
 	ann.randomize_weights(-1.0f, 1.0f);
