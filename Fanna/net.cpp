@@ -18,13 +18,6 @@ void print_error(std::string errmsg) {
 void print_warning(std::string warnmsg) {
 	std::cout << "WARNING: " << warnmsg << std::endl;
 }
-int print_callback(FANN::neural_net& net, FANN::training_data& train, unsigned int max_epochs, unsigned int epochs_between_reports, float desired_error, unsigned int epochs, void* user_data){
-	std::cout << "Epoch: "  << epochs << "/" << max_epochs << ", Current MSE: " << net.get_MSE() << ", Desired MSE: " << desired_error << ", Failed bits: " << net.get_bit_fail() << std::endl;
-	bool dynamic_momentum = stoi(config::parse("dynamic_momentum")) == 1 ? true : false;
-	if (dynamic_momentum)
-		net.set_learning_momentum(pow(net.get_MSE(), 0.5f));
-	return 0;
-}
 
 net::net(pair_info *pi) {
 	try {
@@ -145,10 +138,8 @@ int net::train(void){
 		data.shuffle_train_data();
 	ann.set_scaling_params(data, 0.0f, 1.0f, 0.0f, 1.0f);
 	ann.scale_train(data);
-	if (!cascade_training) {
-		ann.set_callback(print_callback, NULL);
+	if (!cascade_training) 
 		ann.train_on_data(data, training_epochs, report_interval, desired_error);
-	}
 	else ann.cascadetrain_on_data(data, INT_MAX, 1, desired_error);
 	data.destroy_train();
 	save();
@@ -196,11 +187,11 @@ void net::create(void) {
 			layers.push_back(int(round(double(double(hindsight_level) * 5) * hidden_layer_factor)));
 		layers.push_back(1);
 		ann.create_standard_array(2 + hidden_layers, layers.data());
-		ann.set_activation_function_hidden(FANN::ELLIOT);
-		ann.set_activation_function_output(FANN::ELLIOT);
+		ann.set_activation_function_hidden(FANN::ELLIOT_SYMMETRIC);
+		ann.set_activation_function_output(FANN::ELLIOT_SYMMETRIC);
 	}
 	else ann.create_shortcut(2, hindsight_level * 5, 1);
-	ann.randomize_weights(0.0f, 1.0f);
+	ann.randomize_weights(-1.0f, 1.0f);
 }
 void net::save(void) {
 	std::cout << "Saving network..." << std::endl;
