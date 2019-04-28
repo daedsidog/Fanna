@@ -93,7 +93,7 @@ void net::create(void) {
 		ann.set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC);
 	}
 	else ann.create_shortcut(2, hindsight_level * 5, 1);
-	ann.randomize_weights(-1.0f, 1.0f);
+	ann.randomize_weights(0.0f, 1.0f);
 }
 void net::save(void) {
 	std::cout << "Saving network..." << std::endl;
