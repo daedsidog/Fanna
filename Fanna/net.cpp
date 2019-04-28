@@ -11,11 +11,11 @@
 #include "net.hpp"
 #include "config.hpp"
 
-static bool g_console = false;
+static int g_console = 0;
 
 void print_error(std::string errmsg) {
 	std::cout << "ERROR: " << errmsg << std::endl;
-	if(g_console)
+	if(g_console == 1)
 		system("pause");
 }
 void print_warning(std::string warnmsg) {

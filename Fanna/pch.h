@@ -5,13 +5,12 @@
 
 #include <string>
 
-#define PI  bool console, double offset, int hindsight, long length, char *pair, char *interval, double *opening_price, double *closing_price, double *max_price, double *min_price, double *volume
+#define PI  int console, double offset, int hindsight, long length, char *pair, char *interval, double *opening_price, double *closing_price, double *max_price, double *min_price, double *volume
 #define PIARGS console, offset, hindsight, length, pair, interval, opening_price, closing_price, max_price, min_price, volume
 
 struct pair_info {
-	bool 
-		console;
 	int
+		console,
 		hindsight;
 	long length;
 	double
