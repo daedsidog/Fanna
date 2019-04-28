@@ -19,7 +19,7 @@ void print_warning(std::string warnmsg) {
 	std::cout << "WARNING: " << warnmsg << std::endl;
 }
 int print_callback(FANN::neural_net& net, FANN::training_data& train, unsigned int max_epochs, unsigned int epochs_between_reports, float desired_error, unsigned int epochs, void* user_data){
-	std::cout << "Epoch:     " << std::setw(8) << epochs << "/" << max_epochs << ", Current MSE: " << std::left << net.get_MSE() << std::right << ", Desired MSE: " << std::left << desired_error << std::right << ", Failed bits: " << net.get_bit_fail() << std::endl;
+	std::cout << "Epoch: "  << epochs << "/" << max_epochs << ", Current MSE: " << net.get_MSE() << ", Desired MSE: " << desired_error << ", Failed bits: " << net.get_bit_fail() << std::endl;
 	bool dynamic_momentum = stoi(config::parse("dynamic_momentum")) == 1 ? true : false;
 	if (dynamic_momentum)
 		net.set_learning_momentum(pow(net.get_MSE(), 2));
