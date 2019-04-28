@@ -22,7 +22,7 @@ int print_callback(FANN::neural_net& net, FANN::training_data& train, unsigned i
 	std::cout << "Epoch: "  << epochs << "/" << max_epochs << ", Current MSE: " << net.get_MSE() << ", Desired MSE: " << desired_error << ", Failed bits: " << net.get_bit_fail() << std::endl;
 	bool dynamic_momentum = stoi(config::parse("dynamic_momentum")) == 1 ? true : false;
 	if (dynamic_momentum)
-		net.set_learning_momentum(pow(net.get_MSE(), 2));
+		net.set_learning_momentum(pow(net.get_MSE(), 0.5f));
 	return 0;
 }
 
